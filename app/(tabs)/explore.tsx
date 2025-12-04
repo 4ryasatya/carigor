@@ -1,112 +1,293 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { getApp, getApps, initializeApp } from 'firebase/app';
+import { getDatabase, onValue, ref } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
+import { Linking, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
-export default function TabTwoScreen() {
+export default function ProfileScreen() {
+  const [gorCount, setGorCount] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAY0LyfLwUDtbAjjSZw_wPGgZ_-U9ZuOdU",
+    authDomain: "pgpbl-react-native.firebaseapp.com",
+    databaseURL: "https://pgpbl-react-native-default-rtdb.firebaseio.com",
+    projectId: "pgpbl-react-native",
+    storageBucket: "pgpbl-react-native.firebasestorage.app",
+    messagingSenderId: "464134735159",
+    appId: "1:464134735159:web:e3ea55dc8c08215920c6b2",
+    measurementId: "G-LBD1MNSHQM"
+  };
+
+  const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  const db = getDatabase(app);
+
+  useEffect(() => {
+    const pointsRef = ref(db, "points/");
+    const unsubscribe = onValue(pointsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const points = Object.keys(data);
+        setGorCount(points.length);
+        const total = points.reduce((sum, key) => {
+          const price = parseInt(data[key].price) || 0;
+          return sum + price;
+        }, 0);
+        setTotalPrice(total);
+      } else {
+        setGorCount(0);
+        setTotalPrice(0);
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
+    <ScrollView style={styles.container} bounces={false}>
+      {/* Header Section */}
+      <ThemedView style={styles.headerSection}>
+        <View style={styles.avatarContainer}>
+          <FontAwesome5 name="user-circle" size={80} color="#0a84ff" />
+        </View>
+        <ThemedText style={styles.userName}>Demas Aryasatya</ThemedText>
+        <ThemedText style={styles.subtitle}>GOR Enthusiast • Atlet Kalcer</ThemedText>
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
+
+      {/* Statistics Cards */}
+      <View style={styles.statsContainer}>
+        {/* Total GOR Visited */}
+        <ThemedView style={styles.statCard}>
+          <FontAwesome5 name="map-marker-alt" size={24} color="#0a84ff" style={{ marginBottom: 8 }} />
+          <ThemedText style={styles.statValue}>{gorCount}</ThemedText>
+          <ThemedText style={styles.statLabel}>GOR Tersimpan</ThemedText>
+        </ThemedView>
+
+        {/* Badge */}
+        <ThemedView style={styles.statCard}>
+          <FontAwesome5 name="medal" size={24} color="#FFD700" style={{ marginBottom: 8 }} />
+          <ThemedText style={styles.statValue}>Owner GOR</ThemedText>
+          <ThemedText style={styles.statLabel}>Status</ThemedText>
+        </ThemedView>
+
+        {/* GOR Termurah */}
+        <ThemedView style={styles.statCard}>
+          <FontAwesome5 name="tag" size={24} color="#d4680f" style={{ marginBottom: 8 }} />
+          <ThemedText style={styles.statValue}>Pogung Lor</ThemedText>
+          <ThemedText style={styles.statLabel}>GOR Termurah</ThemedText>
+        </ThemedView>
+
+
+      </View>
+
+      {/* Last Visited Section */}
+      <ThemedView style={styles.sectionContainer}>
+        <ThemedText style={styles.sectionTitle}>Terakhir Dikunjungi</ThemedText>
+        <View style={styles.activityCard}>
+          <FontAwesome5 name="location-arrow" size={16} color="#0a84ff" style={{ marginRight: 10 }} />
+          <View style={{ flex: 1 }}>
+            <ThemedText style={styles.activityTitle}>GSG Pogung Lor</ThemedText>
+            <ThemedText style={styles.activitySubtitle}>Rp50.000 per 3 jam</ThemedText>
+          </View>
+        </View>
+        <View style={styles.activityCard}>
+          <FontAwesome5 name="location-arrow" size={16} color="#4299e1" style={{ marginRight: 10 }} />
+          <View style={{ flex: 1 }}>
+            <ThemedText style={styles.activityTitle}>GOR Area</ThemedText>
+            <ThemedText style={styles.activitySubtitle}>Rp75.000 per jam</ThemedText>
+          </View>
+        </View>
+        <View style={styles.activityCard}>
+          <FontAwesome5 name="location-arrow" size={16} color="#25D366" style={{ marginRight: 10 }} />
+          <View style={{ flex: 1 }}>
+            <ThemedText style={styles.activityTitle}>GOR Purbayan</ThemedText>
+            <ThemedText style={styles.activitySubtitle}>Rp20.000 per jam</ThemedText>
+          </View>
+        </View>
+        <View style={[styles.activityCard, { borderBottomWidth: 0 }]}>
+          <FontAwesome5 name="location-arrow" size={16} color="#ff6b6b" style={{ marginRight: 10 }} />
+          <View style={{ flex: 1 }}>
+            <ThemedText style={styles.activityTitle}>GOR Lembah UGM</ThemedText>
+            <ThemedText style={styles.activitySubtitle}>Rp35.000 per jam</ThemedText>
+          </View>
+        </View>
+      </ThemedView>
+
+      {/* About Section */}
+      <ThemedView style={styles.sectionContainer}>
+        <ThemedText style={styles.sectionTitle}>Tentang Aplikasi</ThemedText>
+        <ThemedText style={styles.aboutText}>
+          cariGOR adalah aplikasi untuk menemukan dan memesan lapangan bulutangkis terdekat. Nikmati pengalaman bermain bulutangkis yang lebih mudah!
         </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+        <ThemedText style={styles.versionText}>Versi 1.0.0</ThemedText>
+        
+        {/* Social Links */}
+        <View style={styles.socialContainer}>
+          <TouchableOpacity 
+            style={styles.socialButton}
+            onPress={() => Linking.openURL('https://www.linkedin.com/in/demas-wistaryasatya/')}
+          >
+            <FontAwesome5 name="linkedin" size={20} color="#0A66C2" />
+            <ThemedText style={styles.socialText}>LinkedIn</ThemedText>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.socialButton}
+            onPress={() => Linking.openURL('https://github.com/4ryasatya')}
+          >
+            <FontAwesome5 name="github" size={20} color="#333" />
+            <ThemedText style={styles.socialText}>GitHub</ThemedText>
+          </TouchableOpacity>
+        </View>
+      </ThemedView>
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
   },
-  titleContainer: {
+  headerSection: {
+    backgroundColor: '#fff',
+    paddingVertical: 32,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  avatarContainer: {
+    marginBottom: 16,
+    backgroundColor: '#f0f8ff',
+    borderRadius: 50,
+    padding: 16,
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
+  statsContainer: {
     flexDirection: 'row',
+    paddingHorizontal: 12,
+    paddingVertical: 16,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+    borderLeftWidth: 4,
+    borderLeftColor: '#0a84ff',
+  },
+  statValue: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+    color: '#000',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+  },
+  sectionContainer: {
+    marginHorizontal: 12,
+    marginVertical: 12,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: '#000',
+  },
+  activityCard: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    alignItems: 'center',
+  },
+  activityTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
+  },
+  activitySubtitle: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  aboutText: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 22,
+    marginBottom: 12,
+  },
+  versionText: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    marginBottom: 16,
+  },
+  socialContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'center',
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  socialText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#333',
   },
 });

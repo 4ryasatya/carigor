@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Firebase a Leaflet Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .leaflet-popup-content {
+            font-family: Arial, sans-serif;
+            padding: 8px !important;
+        }
+
+        .popup-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .popup-price {
+            font-weight: 600;
+            color: #d4680f;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .popup-coords {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .popup-buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .popup-btn {
+            flex: 1;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .popup-btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+        }
+
+        .popup-btn-route {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .popup-btn:hover {
+            opacity: 0.8;
+        }
+
+        .popup-icon {
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+
+<body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+
+
+    <!-- Add the Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAY0LyfLwUDtbAjjSZw_wPGgZ_-U9ZuOdU",
+            authDomain: "pgpbl-react-native.firebaseapp.com",
+            databaseURL: "https://pgpbl-react-native-default-rtdb.firebaseio.com",
+            projectId: "pgpbl-react-native",
+            storageBucket: "pgpbl-react-native.firebasestorage.app",
+            messagingSenderId: "464134735159",
+            appId: "1:464134735159:web:e3ea55dc8c08215920c6b2",
+            measurementId: "G-LBD1MNSHQM"
+        };
+
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+
+        // Initialize the map
+        const map = L.map('map').setView([-7.7956, 110.3695], 13);
+
+
+        // Add a tile layer (the map background)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+
+        // Get a reference to the database service
+        const pointsRef = database.ref("/points");
+
+
+        // Attach an asynchronous callback to read the data at our posts reference
+        pointsRef.on('value', (e) => {
+            const data = e.val();
+            console.log(data);
+            if (data) {
+                Object.keys(data).forEach((key) => {
+                    const point = data[key];
+                    if (point.coordinates) {
+                        //change coordinates to float
+                        point.coordinates = point.coordinates.split(",").map(parseFloat);
+                        console.log(point.coordinates);
+                        const marker = L.marker(point.coordinates).addTo(map);
+                        let popupHtml = `<div class="popup-title">${point.name}</div>`;
+                        if (point.price) {
+                            popupHtml += `<div class="popup-price">
+                                Rp${point.price}/jam</div>`;
+                        }
+                        popupHtml += `<div class="popup-coords">${point.coordinates[0].toFixed(4)}, ${point.coordinates[1].toFixed(4)}</div>`;
+                        popupHtml += `<div class="popup-buttons">`;
+                        if (point.contact) {
+                            popupHtml += `<button class="popup-btn popup-btn-whatsapp" onclick="openWhatsApp('${point.contact}')"><i class="fas fa-phone popup-icon"></i> WhatsApp</button>`;
+                        }
+                        popupHtml += `<button class="popup-btn popup-btn-route" onclick="openRoute(${point.coordinates[0]}, ${point.coordinates[1]})"><i class="fas fa-directions popup-icon"></i> Rute</button>`;
+                        popupHtml += `</div>`;
+                        if (point.name) {
+                            marker.bindPopup(popupHtml);
+                        }
+                    }
+                });
+            }
+        }, (errorObject) => {
+            console.log("The read failed: " + errorObject.name);
+        });
+
+
+        // Open route in Google Maps
+        function openRoute(lat, lng) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            window.open(url, '_blank');
+        }
+
+        // Open WhatsApp
+        function openWhatsApp(phone) {
+            if (!phone) {
+                alert("Nomor telepon tidak tersedia");
+                return;
+            }
+            // Normalize phone: remove non-digits
+            let normalized = phone.replace(/\D/g, '');
+            // Convert leading 0 to 62 (Indonesia country code)
+            if (normalized.startsWith('0')) {
+                normalized = '62' + normalized.slice(1);
+            }
+            // Ensure it starts with country code
+            if (!normalized.startsWith('62')) {
+                normalized = '62' + normalized;
+            }
+            // Open WhatsApp
+            const url = `https://wa.me/${normalized}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+
+</html>
