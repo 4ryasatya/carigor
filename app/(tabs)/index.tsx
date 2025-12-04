@@ -119,7 +119,7 @@ export default function HomeScreen() {
     {
       icon: 'heart',
       title: 'Kesehatan Jantung',
-      text: 'Olahraga raket seperti bulutangkis dan tenis ampuh menurunkan risiko kematian dini akibat penyakit kardiovaskular hingga 47%. (British Journal of Sports Medicine)',
+      text: 'Olahraga yang menggunakan raket seperti bulutangkis dan tenis ampuh menurunkan risiko kematian dini akibat penyakit kardiovaskular hingga 47%. (British Journal of Sports Medicine)',
       color: '#ff6b6b',
     },
     {
