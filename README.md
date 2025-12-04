@@ -27,7 +27,20 @@ cariGOR adalah aplikasi mobile berbasis React Native yang dirancang untuk memban
    - Untuk fitur “Get Current Location” ketika menambahkan GOR baru.
 
 ## 📸 Tangkapan Layar Aplikasi
+### 1. Beranda
+![Home](./Screenshots/Home.jpg)
 
+### 2. Halaman Peta
+![Map](./Screenshots/Map.jpg)
+
+### 3. Daftar GOR
+![List](./Screenshots/Lokasi.jpg)
+
+### 4. Edit Data GOR
+![Edit](./Screenshots/Edit.jpg)
+
+### 5. Profil Pengguna
+![Profile](./Screenshots/Profile.jpg)
 Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
