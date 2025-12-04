@@ -28,20 +28,17 @@ cariGOR adalah aplikasi mobile berbasis React Native yang dirancang untuk memban
 
 ## 📸 Tangkapan Layar Aplikasi
 ### 1. Beranda
-![Home](./Screenshots/Home.jpg)
+<img width="272" height="572" alt="image" src="https://github.com/user-attachments/assets/00e4d66b-c4bb-49f1-a4b4-c5a683006d69" />
 
 ### 2. Halaman Peta
-![Map](./Screenshots/Map.jpg)
+<img width="285" height="568" alt="image" src="https://github.com/user-attachments/assets/169da1ba-011d-430d-8bec-504d92f0ce00" />
 
 ### 3. Daftar GOR
-![List](./Screenshots/Lokasi.jpg)
+<img width="406" height="834" alt="image" src="https://github.com/user-attachments/assets/c5c6afa9-ca84-45dd-b025-3a99703db21e" />
 
-### 4. Edit Data GOR
-![Edit](./Screenshots/Edit.jpg)
+### 4. Tambah & Edit Data GOR
+<img width="410" height="816" alt="image" src="https://github.com/user-attachments/assets/d1658203-9c75-4330-be2b-f298a0d97837" />
+<img width="421" height="833" alt="image" src="https://github.com/user-attachments/assets/5ced13b4-b248-48db-b325-757f5959606a" />
 
 ### 5. Profil Pengguna
-![Profile](./Screenshots/Profile.jpg)
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+<img width="406" height="835" alt="image" src="https://github.com/user-attachments/assets/1c8d1444-0157-43a9-8589-4a18f813ca50" />
